@@ -550,6 +550,14 @@ impl<'a> NodeProperty<'a> {
         core::str::from_utf8(self.value).map(|s| s.trim_end_matches('\0')).ok()
     }
 
+    /// Attempts to parse the property value as a list of [`&str`].
+    pub fn as_str_list(self) -> Option<impl Iterator<Item = &'a str> + 'a> {
+        let mut s = self.as_str()?.split('\0');
+        Some(core::iter::from_fn(move || {
+            s.next()
+        }))
+    }
+
     fn parse(stream: &mut FdtData<'a>, header: &Fdt<'a>) -> Self {
         match stream.u32().unwrap().get() {
             FDT_PROP => {}

@@ -271,3 +271,17 @@ fn interrupt_cells() {
     std::println!("{:?}", uart.parent_interrupt_cells());
     assert_eq!(uart.interrupts().unwrap().collect::<std::vec::Vec<_>>(), std::vec![0xA]);
 }
+
+#[test]
+fn property_str_list() {
+    let fdt = Fdt::new(TEST).unwrap();
+    let test = fdt.find_node("/soc/test").unwrap();
+    let expected = ["sifive,test1", "sifive,test0", "syscon"];
+    let compat = test.property("compatible").unwrap();
+
+    assert_eq!(compat.as_str_list().unwrap().count(), expected.len());
+
+    test.property("compatible").unwrap().as_str_list().unwrap().zip(expected).for_each(|(prop, exp)| {
+        assert_eq!(prop, exp);
+    });
+}
