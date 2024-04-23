@@ -273,6 +273,14 @@ fn interrupt_cells() {
 }
 
 #[test]
+fn interrupt_cells_no_interrupt_parent() {
+    let fdt = Fdt::new(TEST).unwrap();
+    let test = fdt.find_node("/soc/test").unwrap();
+    std::println!("{:?}", test.parent_interrupt_cells());
+    assert_eq!(test.interrupts().unwrap().collect::<std::vec::Vec<_>>(), std::vec![0xFF]);
+}
+
+#[test]
 fn property_str_list() {
     let fdt = Fdt::new(TEST).unwrap();
     let test = fdt.find_node("/soc/test").unwrap();
