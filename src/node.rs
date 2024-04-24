@@ -543,6 +543,25 @@ impl<'a> NodeProperty<'a> {
         }
     }
 
+    /// Attempts to parse the property value as a list of [`usize`].
+    pub fn as_usize_list(self, cell_size: usize) -> impl Iterator<Item = usize> + 'a {
+        let chunk_len = match cell_size {
+            1 => 4,
+            2 => 8,
+            _ => 1,
+        };
+
+        let mut chunks = self.value.chunks_exact(chunk_len);
+
+        core::iter::from_fn(move || match chunk_len {
+            4 => chunks.next().map(|c| u32::from_be_bytes([c[0], c[1], c[2], c[3]]) as usize),
+            8 => chunks.next().map(|c| {
+                u64::from_be_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]]) as usize
+            }),
+            _ => None,
+        })
+    }
+
     /// Attempt to parse the property value as a `&str`
     pub fn as_str(self) -> Option<&'a str> {
         core::str::from_utf8(self.value).map(|s| s.trim_end_matches('\0')).ok()

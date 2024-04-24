@@ -293,3 +293,18 @@ fn property_str_list() {
         assert_eq!(prop, exp);
     });
 }
+
+#[test]
+fn property_usize_list() {
+    let fdt = Fdt::new(TEST).unwrap();
+    let uart = fdt.find_node("/soc/pci").unwrap();
+
+    let int_map_mask_list = uart
+        .property("interrupt-map-mask")
+        .unwrap()
+        .as_usize_list(uart.interrupt_cells().unwrap_or(1))
+        .collect::<std::vec::Vec<usize>>();
+
+    std::println!("{int_map_mask_list:?}");
+    assert_eq!(int_map_mask_list, std::vec![0x1800, 0x00, 0x00, 0x07]);
+}
